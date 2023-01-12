@@ -3,6 +3,7 @@ import { ProductosService } from './productos.service';
 import { Productos } from 'src/models/productos.entity';
 import { ProductosDto } from './dto/productos.dto';
 import { ProductosUpdateDto } from './dto/productoUpdate.dto';
+import { ProductosActiveDto } from './dto/productoActive.dto';
 
 @Controller('productos')
 export class ProductosController {
@@ -35,6 +36,18 @@ export class ProductosController {
   async updateProducto(@Res() res, @Body() producto: ProductosUpdateDto) {
 
     const update = await this.productosService.updateProducto(producto);
+
+    return res.status(HttpStatus.OK).send({
+			status: HttpStatus.OK,
+      data: update,
+      message: 'Se actualizó el producto exitosamente'
+		})
+  }
+
+  @Patch('/activeProducto')
+  async activeProducto(@Res() res, @Body() producto: ProductosActiveDto) {
+
+    const update = await this.productosService.changeActiveProducto(producto);
 
     return res.status(HttpStatus.OK).send({
 			status: HttpStatus.OK,
