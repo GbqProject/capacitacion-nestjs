@@ -1,8 +1,82 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable} from '@nestjs/common';
+import { Productos } from 'src/models/productos.entity';
+import { ProductosDto } from '../dto/productos.dto';
+import { ProductosUpdateDto } from '../dto/productosUpdate.dto';
 
 @Injectable()
 export class ProductosService {
-    listproductos() {
-         
+  constructor(
+    @Inject('PRODUCTOS_REPOSITORY')
+    private readonly productosRepository: Productos,
+  ) {}
+
+
+  async listProductos(): Promise<Productos[]> {
+    try {
+        return await this.productosRepository.sequelize.query(
+          `
+            SELECT * FROM venta_comida_perro.productos;
+          `,
+          {
+            model: Productos,
+            mapToModel:true
+          }
+        )
+    } catch (err) {
+            throw err;
       }
+  }
+
+  async InsertProducto(producto: ProductosDto): Promise<any> {
+    try {
+        return await this.productosRepository.sequelize.query(
+          `
+            INSERT INTO venta_comida_perro.productos(
+              "nombre_producto", "valor_unitario", 
+              "fecha_creacion", "usuario_modificacion", 
+              "cantidad")
+            VALUES (:nombre::varchar, :valor::money, now(), 
+                    :user::integer, :cantidad::integer)
+          `,
+          {
+            model: Productos,
+            mapToModel:true,
+            replacements: {
+              nombre: producto.nombre,
+              valor: producto.valor,
+              user: producto.user,
+              cantidad: producto.cantidad
+            }
+          }
+        )
+    } catch (err) {
+            throw err;
+      }
+  }
+
+  async updateProducto(producto: ProductosUpdateDto): Promise<any> {
+    try {
+        return await this.productosRepository.sequelize.query(
+          `
+            UPDATE venta_comida_perro.productos SET
+                "valor_unitario"=:valor::decimal,
+                "cantidad"=:cantidad::integer,
+                "usuario_modificacion"=:user::integer
+            WHERE "id_producto"=:id::integer;
+          `,
+          {
+            model: Productos,
+            mapToModel:true,
+            replacements: {
+              valor: producto.valor,
+              user: producto.user,
+              cantidad: producto.cantidad,
+              id: producto.id
+            }
+          }
+        )
+    } catch (err) {
+            throw err;
+      }
+  }
 }
