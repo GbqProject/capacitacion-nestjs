@@ -2,6 +2,7 @@ import { Inject, Injectable} from '@nestjs/common';
 import { Productos } from 'src/models/productos.entity';
 import { ProductosDto } from '../dto/productos.dto';
 import { ProductosUpdateDto } from '../dto/productosUpdate.dto';
+import { ProductosDeleteDto } from '../dto/productosDelete.dot';
 
 @Injectable()
 export class ProductosService {
@@ -59,7 +60,7 @@ export class ProductosService {
         return await this.productosRepository.sequelize.query(
           `
             UPDATE venta_comida_perro.productos SET
-                "valor_unitario"=:valor::decimal,
+                "valor_unitario"=:valor::money,
                 "cantidad"=:cantidad::integer,
                 "usuario_modificacion"=:user::integer
             WHERE "id_producto"=:id::integer;
@@ -71,6 +72,30 @@ export class ProductosService {
               valor: producto.valor,
               user: producto.user,
               cantidad: producto.cantidad,
+              id: producto.id
+            }
+          }
+        )
+    } catch (err) {
+            throw err;
+      }
+  }
+
+
+  async deleteProducto(producto: ProductosDeleteDto): Promise<any> {
+    try {
+        return await this.productosRepository.sequelize.query(
+          `
+            DELETE FROM venta_comida_perro.log_productos WHERE
+            "id_producto"=:id::integer;
+
+            DELETE FROM venta_comida_perro.productos WHERE
+            "id_producto"=:id::integer;
+          `,
+          {
+            model: Productos,
+            mapToModel:true,
+            replacements: {
               id: producto.id
             }
           }

@@ -1,8 +1,9 @@
-import { Body, Controller, Get, HttpStatus, Patch, Post, Res } from '@nestjs/common';
+import { Body, Controller, Delete, Get, HttpStatus, Post, Res, Put } from '@nestjs/common';
 import { ProductosService } from './productos.service';
 import { ProductosDto } from '../dto/productos.dto';
 import { ProductosUpdateDto } from '../dto/productosUpdate.dto';
 import { Productos } from 'src/models/productos.entity';
+import { ProductosDeleteDto } from '../dto/productosDelete.dot';
 
 @Controller('productos')
 export class ProductosController {
@@ -31,7 +32,7 @@ export class ProductosController {
     })
   }
 
-  @Patch("/updateProducto")
+  @Put("/updateProducto")
   async updateProducto(@Res() res, @Body() producto: ProductosUpdateDto) {
 
     const update = await this.productosService.updateProducto(producto);
@@ -42,4 +43,17 @@ export class ProductosController {
       message: "Producto actualizado exitosamente"
     })
   }
+
+  @Delete("/deleteProducto")
+  async deleteProducto(@Res() res, @Body() producto: ProductosDeleteDto) {
+
+    const deletes = await this.productosService.deleteProducto(producto);
+  
+    return res.status(HttpStatus.OK).send({
+      status: HttpStatus.OK,
+      data: deletes,
+      message: "Producto eliminado exitosamente"
+    })
+  }
+
 }
